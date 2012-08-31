@@ -1,0 +1,79 @@
+﻿@model RulesEngineEval.Models.Member
+@{
+    ViewBag.Title = "CodePlexRe";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+<h2>
+    CodePlexRe</h2>
+<p>
+    All these samples are take from <a>http://rulesengine.codeplex.com/</a></p>
+<h3>
+   CustomRules</h3>
+<pre>
+public class Person
+    {
+        public string Name { get; set; }
+        public string Phone { get; set; }
+        public DateTime DateOfBirth { get; set; }
+    }
+
+    public class Program
+    {
+        public static void Main(string[] args)
+        {
+            Engine engine = new Engine();
+            engine.For
+<person>()
+                    .Setup(p => p.DateOfBirth)
+                        .MustBeLessThan(DateTime.Now)
+                    .Setup(p => p.Name)
+                        .MustNotBeNull()
+                        .MustMatchRegex("^[a-zA-z]+$")
+                    .Setup(p => p.Phone)
+                        .MustNotBeNull()
+                        .MustMatchRegex("^[0-9]+$");
+
+            Person person = new Person();
+            person.Name = "Bill";
+            person.Phone = "1234214";
+            person.DateOfBirth = new DateTime(1999, 10, 2);
+
+            bool isValid = engine.Validate(person);
+        }
+    }
+  </pre>
+
+@using (Html.BeginForm())
+{ 
+    <h2>
+        Test it</h2>
+    <table>
+        <tr>
+            <td>
+                Name
+            </td>
+            <td>
+                Email
+            </td>
+            <td>
+                Is Valid
+            </td>
+        </tr>
+        <tr>
+            <td>
+                @Html.TextBox("Name")
+            </td>
+            <td>
+                @Html.TextBox("Email")
+            </td>
+            <td>
+               @Model.IsValid
+            </td>
+        </tr>
+        <tr>
+          
+        </tr>
+    </table>
+    <input type="submit" value="Validate" />
+}
+<hr>

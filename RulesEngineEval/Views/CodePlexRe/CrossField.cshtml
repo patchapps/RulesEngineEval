@@ -1,0 +1,85 @@
+﻿@model RulesEngineEval.Models.NewUserRegistration
+@{
+    ViewBag.Title = "CodePlexRe";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+<h2>
+    CodePlexRe</h2>
+<p>
+    All these samples are take from <a>http://rulesengine.codeplex.com/</a></p>
+<h3>
+    Cross Field Rules</h3>
+<pre>
+class Program
+    {
+        public class NewUserRegistration
+        {
+            public string UserName { get; set; }
+            public string Password { get; set; }
+            public string ConfirmPassword { get; set; }
+        }
+
+        static void Main(string[] args)
+        {
+            Engine engine = new Engine();
+            engine.For<NewUserRegistration>()
+                .Setup(user => user.UserName)
+                    .MustNotBeNullOrEmpty()
+                .Setup(user => user.Password)
+                    .MustNotBeNullOrEmpty()
+                .Setup(user => user.ConfirmPassword)
+                    .MustEqual(user => user.Password);
+
+            var user1 = new NewUserRegistration() { UserName = "user1", Password = "123", ConfirmPassword = "123"};
+            var user2 = new NewUserRegistration() { UserName = "user2", Password = "123", ConfirmPassword = "456" };
+
+            //User1 is valid
+            var user1Valid = engine.Validate(user1);
+
+            //User2 is not valid - ConfirmPassword and Password do not match
+            var user2Valid = engine.Validate(user2);
+        }
+    }
+
+  </pre>
+
+@using (Html.BeginForm())
+{ 
+    <h2>
+        Test it</h2>
+    <table>
+        <tr>
+            <td>
+                UserName
+            </td>
+            <td>
+                Password
+            </td>
+            <td>
+                Confirm Password
+            </td>
+            <td>
+                Is Valid
+            </td>
+        </tr>
+        <tr>
+            <td>
+                @Html.TextBox("UserName")
+            </td>
+            <td>
+                @Html.TextBox("Password")
+            </td>
+            <td>
+                @Html.TextBox("ConfirmPassword")
+            </td>
+            <td>
+               @Model.IsValid
+            </td>
+        </tr>
+        <tr>
+          
+        </tr>
+    </table>
+    <input type="submit" value="Validate" />
+}
+<hr>

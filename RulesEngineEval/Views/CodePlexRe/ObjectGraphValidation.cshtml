@@ -1,0 +1,100 @@
+﻿@model RulesEngineEval.Models.Club
+@{
+    ViewBag.Title = "CodePlexRe";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+<h2>
+    CodePlexRe</h2>
+<p>
+    All these samples are take from <a>http://rulesengine.codeplex.com/</a></p>
+<h3>
+    ObjectGraphValidation</h3>
+<pre>
+class Program
+    {
+        public class Member
+        {
+            public string Name { get; set; }
+            public string Email { get; set; }
+
+            public Member(string name, string email)
+            {
+                this.Name = name;
+                this.Email = email;
+            }
+        }
+
+        public class Club
+        {
+            private readonly List<Member> _members = new List<Member>();
+            public string Name { get; set; }
+            public Member President { get; set; }
+
+            public List<Member> Members
+            {
+                get { return _members; }
+            }
+
+            public Club(string name, Member president, params Member[] members)
+            {
+                this.Name = name;
+                this.President = president;
+                this._members.AddRange(members);
+            }
+        }
+
+        static void Main(string[] args)
+        {
+            Engine engine = new Engine();
+
+            engine.For<Member>()
+                .Setup(member => member.Name)
+                    .MustNotBeNullOrEmpty()
+                .Setup(member => member.Email)
+                    .MustNotBeNullOrEmpty();
+            
+            engine.For<Club>()
+                .Setup(club => club.President)
+                    .MustNotBeNull()
+                    .CallValidate() //Calls engine.Validate for the President.
+                .Setup(club => club.Members)
+                    .MustNotBeNull()
+                    .CallValidateForEachElement(); //Calls engine.Validate() on each element
+
+            var chessClub = new Club("Chess Club"
+                , new Member("athoma13", "athoma13@codeplex.com")
+                , new Member("Arpad Elo", "arpad@hotmail.com")
+                , new Member("Garry Kasparov", "garry@gmail.com")
+                , new Member("Bobby Fischer", "bobby@aol.com")
+                );
+            
+            //The club is valid...
+            bool isValidClub = engine.Validate(chessClub);
+        }
+    }
+  </pre>
+
+@using (Html.BeginForm())
+{ 
+    <h2>
+        Test it</h2>
+    <table>
+        <tr>
+         
+            <td>
+                Is Valid
+            </td>
+        </tr>
+        <tr>
+            
+            <td>
+               @Model.IsValid
+            </td>
+        </tr>
+        <tr>
+          
+        </tr>
+    </table>
+    <input type="submit" value="Validate" />
+}
+<hr>
