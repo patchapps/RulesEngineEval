@@ -1,0 +1,69 @@
+﻿@model System.Collections.Generic.List<RulesEngineEval.Controllers.AccountResult>
+@{
+    ViewBag.Title = "Index";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<h2>Simple Specification Usage</h2>
+
+<pre>
+            var accounts = new List<BankAccount>();
+            accounts.Add(new BankAccount(1, "", 1, 0));
+            accounts.Add(new BankAccount(2, "a name", 10, 0));
+            accounts.Add(new BankAccount(3, "another name", 0, -10));
+            accounts.Add(new BankAccount(4, "yet another", 0, 0));
+
+            ISpecification<BankAccount> validAccountSpec = new ValidAccountSpecification();
+            ISpecification<BankAccount> accountHasFunds = new AccountHasFundsSpecification();
+
+            ISpecification<BankAccount> validAndHasFunds =
+                new ValidAccountSpecification().And(new AccountHasFundsSpecification());
+
+            ISpecification<BankAccount> canWithdraw =
+                new AccountHasFundsSpecification().Or(new WithinOverdraftSpecification());
+
+            ISpecification<BankAccount> safeAccount =
+                new ValidAccountSpecification().And(new AccountHasFundsSpecification().Or(new WithinOverdraftSpecification()));
+</pre>
+
+
+@using (Html.BeginForm())
+{ 
+    <h2>
+        Test it</h2>
+    <table>
+        <tr>
+            <td>
+                Account Name
+            </td>
+            <td>
+                Balance
+            </td>
+            <td>
+                Overdraft
+            </td>
+            <td>Messages
+            </td>
+        </tr>
+        @foreach (var account in Model)
+        {
+        <tr>
+            <td>
+               @account.Account.AccountName
+            </td>
+            <td>
+                @account.Account.CurrentBalance
+            </td>
+            <td>
+                @account.Account.OverdraftAmount
+            </td>
+            <td>
+               @account.Messages
+            </td>
+        </tr>
+        }         
+
+    </table>
+    <input type="submit" value="Validate" />
+}
+<hr>
